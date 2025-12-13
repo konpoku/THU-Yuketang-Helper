@@ -2,7 +2,15 @@ import requests
 import threading
 import random
 import time
-import websocket
+try:
+    import websocket
+except Exception as e:
+    raise ImportError("Missing websocket module. Please install 'websocket-client' in your environment (pip install websocket-client)") from e
+
+if not hasattr(websocket, 'WebSocketApp'):
+    raise ImportError("The imported 'websocket' module doesn't provide WebSocketApp.\n" \
+                      "This often happens when a conflicting package named 'websocket' is installed.\n" \
+                      "Fix: uninstall the conflicting package (pip uninstall websocket) and install websocket-client: pip install -U websocket-client")
 import json
 from Scripts.Utils import get_user_info, dict_result, calculate_waittime
 

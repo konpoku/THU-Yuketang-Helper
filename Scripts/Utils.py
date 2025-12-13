@@ -92,14 +92,39 @@ def get_initial_data():
 
 def get_config_path():
     # 获取配置文件路径
-    config_route = get_config_dir() + "\\config.json"
+    # use os.path.join for cross-platform path building
+    config_dir = get_config_dir()
+    config_route = os.path.join(config_dir, "config.json")
     return config_route
 
 def get_config_dir():
     # 获取配置文件所在文件夹
-    appdata_route = os.environ['APPDATA']
-    dir_route = appdata_route + "\\RainClassroomAssistant"
-    return dir_route
+    # Cross-platform config directory:
+    # - Windows: APPDATA\RainClassroomAssistant
+    # - macOS: ~/Library/Application Support/RainClassroomAssistant
+    # - Linux/other: $XDG_CONFIG_HOME or ~/.config/RainClassroomAssistant
+    try:
+        if 'APPDATA' in os.environ:
+            appdata_route = os.environ['APPDATA']
+            dir_route = os.path.join(appdata_route, 'RainClassroomAssistant')
+        else:
+            if sys.platform == 'darwin':
+                base = os.path.expanduser('~/Library/Application Support')
+            else:
+                base = os.environ.get('XDG_CONFIG_HOME', os.path.expanduser('~/.config'))
+            dir_route = os.path.join(base, 'RainClassroomAssistant')
+
+        # Ensure the directory exists
+        if not os.path.exists(dir_route):
+            try:
+                os.makedirs(dir_route, exist_ok=True)
+            except Exception:
+                # If we can't create, fall back to current directory
+                dir_route = os.path.abspath('.')
+        return dir_route
+    except Exception:
+        # As a last resort, return current directory
+        return os.path.abspath('.')
 
 def get_user_info(sessionid):
     # 获取用户信息
