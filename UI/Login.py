@@ -10,7 +10,15 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from Scripts.Utils import dict_result, get_config_path, resource_path
-import websocket
+try:
+    import websocket
+except Exception as e:
+    raise ImportError("Missing websocket module. Please install 'websocket-client' in your environment (pip install websocket-client)") from e
+
+if not hasattr(websocket, 'WebSocketApp'):
+    raise ImportError("The imported 'websocket' module doesn't provide WebSocketApp.\n" \
+                      "This often happens when a conflicting package named 'websocket' is installed.\n" \
+                      "Fix: uninstall the conflicting package (pip uninstall websocket) and install websocket-client: pip install -U websocket-client")
 import requests
 import json
 import threading
